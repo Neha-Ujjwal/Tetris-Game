@@ -4,8 +4,11 @@ const gridContainer = document.querySelector(".grid");
 
 // console.log(gridContainer);
 
-for (let i = 0; i < 200; i++) {
+for (let i = 0; i < 210; i++) {
   const gridElement = document.createElement("div");
+  if (i >= 199) {
+    gridElement.classList.add("freeze");
+  }
   gridContainer.appendChild(gridElement);
 }
 
@@ -65,14 +68,108 @@ const shapeI = [
 
 const AllShapes = [shapeL, shapeZ, shapeT, shapeO, shapeI];
 
+let currentPosition = 5;
+let currentRotation = 0;
 //randomnly selecting shapes
 let random = Math.floor(Math.random() * AllShapes.length);
 let currentShape = AllShapes[random][0];
 
+// console.log(currentShape);
+
+//drwaing the shape
 function draw() {
-  currentShape.forEach((index) => {
-    squares[index].style.background = "red";
+  currentShape.forEach((ele) => {
+    // console.log(currentPosition + ele);
+    squares[currentPosition + ele].style.backgroundColor = "red";
   });
 }
 
 draw();
+//erase the shape
+
+function erase() {
+  currentShape.forEach((ele) => {
+    squares[currentPosition + ele].style.backgroundColor = "";
+  });
+}
+
+//movedown
+function moveDown() {
+  erase();
+  currentPosition += width;
+  draw();
+  stop();
+}
+
+var timer = setInterval(moveDown, 1000);
+
+//stop the shapes
+
+function stop() {
+  //some function gives true as output if any elememt of array satisifes the condition
+  if (
+    currentShape.some((ele) =>
+      squares[currentPosition + ele + width].classList.contains("freeze")
+    )
+  ) {
+    currentShape.forEach((index) =>
+      squares[currentPosition + index].classList.add("freeze")
+    );
+
+    //start a new shape
+
+    random = Math.floor(Math.random() * AllShapes.length);
+    currentRotation = 0;
+    currentShape = AllShapes[random][currentRotation];
+    currentPosition = 5;
+
+    draw();
+  }
+}
+
+//control the game
+function control(e) {
+  // keycode == 37 for left arrow key
+  if (e.keyCode === 37) {
+    moveLeft();
+  } else if (e.keyCode === 39) {
+    moveRight();
+  } else if (e.keyCode === 40) {
+    moveDown();
+  }
+}
+
+window.addEventListener("keydown", control);
+
+//moveLeft function
+
+function moveLeft() {
+  erase();
+
+  let leftBlockage = currentShape.some(
+    (ele) => (currentPosition + ele) % width === 0
+  );
+
+  let blockage = currentShape.some((ele) =>
+    squares[currentPosition + ele - 1].classList.contains("freeze")
+  );
+  if (!leftBlockage && !blockage) {
+    currentPosition--;
+  }
+
+  draw();
+}
+
+function moveRight() {
+  erase();
+  let rightBlockage = currentShape.some(
+    (ele) => (currentPosition + ele) % 10 === width - 1
+  );
+  let blockage = currentShape.some((ele) =>
+    squares[currentPosition + ele + 1].classList.contains("freeze")
+  );
+  if (!rightBlockage && !blockage) {
+    currentPosition++;
+  }
+  draw();
+}
