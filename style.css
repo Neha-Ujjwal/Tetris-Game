@@ -48,3 +48,24 @@ h3 {
   color: whitesmoke;
   font-size: 10px;
 }
+
+.button-container {
+  width: 200px;
+  margin: 10px auto;
+  background-color: #131519;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.btn {
+  background-color: #131519;
+  border: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  margin: 0px 2px;
+}
+
+.btn img {
+  width: 40px;
+  height: auto;
+}

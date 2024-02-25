@@ -1,6 +1,18 @@
 //Loop to create 200 div elements
 
 const gridContainer = document.querySelector(".grid");
+const score = document.getElementById("score");
+const startBtn = document.getElementById("start-button");
+const btnImg = document.getElementById("btnImg");
+//arrow buttons
+
+const leftBtn = document.getElementById("left");
+const rightBtn = document.getElementById("right");
+const downBtn = document.getElementById("down");
+const rotateBtn = document.getElementById("rotate");
+
+//colors
+const color = ["#FF3353", "#A03EFF", "#33FFD1", "#FFE833", "#15e915"];
 
 // console.log(gridContainer);
 
@@ -72,7 +84,7 @@ let currentPosition = 5;
 let currentRotation = 0;
 //randomnly selecting shapes
 let random = Math.floor(Math.random() * AllShapes.length);
-let currentShape = AllShapes[random][0];
+let currentShape = AllShapes[random][currentRotation];
 
 // console.log(currentShape);
 
@@ -80,7 +92,7 @@ let currentShape = AllShapes[random][0];
 function draw() {
   currentShape.forEach((ele) => {
     // console.log(currentPosition + ele);
-    squares[currentPosition + ele].style.backgroundColor = "red";
+    squares[currentPosition + ele].style.backgroundColor = color[random];
   });
 }
 
@@ -124,6 +136,8 @@ function stop() {
     currentPosition = 5;
 
     draw();
+    gameOver();
+    addScore();
   }
 }
 
@@ -136,10 +150,18 @@ function control(e) {
     moveRight();
   } else if (e.keyCode === 40) {
     moveDown();
+  } else if (e.keyCode === 32) {
+    rotate();
   }
 }
 
 window.addEventListener("keydown", control);
+
+//control shapes using left,right buttons to play in phones
+leftBtn.addEventListener("click", moveLeft);
+rightBtn.addEventListener("click", moveRight);
+downBtn.addEventListener("click", moveDown);
+rotateBtn.addEventListener("click", rotate);
 
 //moveLeft function
 
@@ -172,4 +194,74 @@ function moveRight() {
     currentPosition++;
   }
   draw();
+}
+
+function rotate() {
+  erase();
+  currentRotation = (currentRotation + 1) % 4;
+  currentShape = AllShapes[random][currentRotation];
+  draw();
+}
+
+//add functionality to pause and play the button
+
+function pause() {
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+    btnImg.src = "play.png";
+  } else {
+    draw();
+
+    timer = setInterval(moveDown, 1000);
+    btnImg.src = "pause.png";
+  }
+}
+
+startBtn.addEventListener("click", pause);
+
+//game over function
+
+function gameOver() {
+  if (
+    currentShape.some((ele) =>
+      squares[currentPosition + ele].classList.contains("freeze")
+    )
+  ) {
+    score.innerText = "Game Over";
+    clearInterval(timer);
+  }
+}
+
+//add score
+
+function addScore() {
+  for (let i = 0; i < 199; i += width) {
+    const row = [
+      i,
+      i + 1,
+      i + 2,
+      i + 3,
+      i + 4,
+      i + 5,
+      i + 6,
+      i + 7,
+      i + 8,
+      i + 9,
+    ];
+
+    if (row.every((ele) => squares[ele].classList.contains("freeze"))) {
+      count += 10;
+      score.innerText = `score:${count}`;
+      row.forEach((ele) => {
+        squares[ele].classList.remove("freeze");
+        squares[ele].style.background = "";
+      });
+
+      const squareRemoved = squares.splice(i, width);
+      console.log(squareRemoved);
+      squares = squareRemoved.concat(squares);
+      squares.forEach((square) => gridContainer.appendChild(square));
+    }
+  }
 }
